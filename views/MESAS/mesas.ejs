@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <% title %>
+    </title>
+    <link href="/public/css/output.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container mx-auto mt-10 px-4 sm:px-6 lg:px-8">
+        <div class="p-4 rounded-lg shadow backdrop-blur-lg bg-transparent">
+            <div class="overflow-x-auto">
+                <div id="alert-container"></div>
+                <% if (message) { %>
+                    <script>
+                        const alertContainer = document.getElementById('alert-container');
+                        const newAlert = document.createElement('div');
+                        newAlert.className = 'p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg flex';
+                        newAlert.setAttribute('role', 'alert');
+                        newAlert.innerHTML = `
+                            <svg class="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg> 
+                            <span class="font-medium"> <%= message %> </span>
+                        `;
+                        alertContainer.appendChild(newAlert);
+
+                        // Espera 3 segundos antes de desaparecer la alerta
+                        setTimeout(() => {
+                            newAlert.classList.add('hidden'); // Oculta la alerta
+                        }, 2500);
+                    </script>
+                    <% } %>
+
+                        <div class="flex flex-col justify-between items-center mb-4">
+                            <h1 class="text-6xl font-bold mb-4 text-gray-50 italic"
+                                style="text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9">
+                                Mesas</h1>
+                            <div
+                                class="flex flex-row justify-between items-center space-x-4 mb-4 text-center w-1/2 h-1/2">
+                                <a href="/createMesas" id="#ModalMesa"
+                                    class="bg-pink-500 hover:bg-pink-700 text-gray-50 font-bold py-4 px-3 rounded-full transition ease-in-out delay-150  hover:-translate-y-1 hover:scale-110 duration-300">
+                                    AGREGAR MESA
+                                </a>
+                                <a href="/areas"
+                                    class="bg-pink-500 hover:bg-pink-700 text-gray-50 font-bold py-4 px-3 rounded-full transition ease-in-out delay-150  hover:-translate-y-1 hover:scale-110 duration-300">
+                                    IR A AREAS
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-row justify-between items-start mb-4">
+                            <div class="w-full overflow-x-auto">
+                                <div class="grid grid-cols-3 gap-4 p-4">
+                                    <% mesas.forEach(mesa=> { %>
+                                        <div class="bg-pink-100 p-4 rounded-lg shadow-lg text-center">
+                                            <a href="">
+                                                <div class="flex flex-col">
+                                                    <h3 class="text-lg font-semibold">
+                                                        <%= mesa.NOMBRE %>
+                                                    </h3>
+                                                    <h3 class="text-lg font-semibold">
+                                                        AREA: <%= mesa.IDAREA %>
+                                                    </h3>
+                                                    <% if (mesa.ESTADO===1) { %>
+                                                        <span
+                                                            class="border border-green-400 bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                                                            Disponible
+                                                        </span>
+                                                        <% } else { %>
+                                                            <span
+                                                                class="border border-red-400 bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                                                                No Disponible
+                                                            </span>
+                                                            <% } %>
+                                                                <!-- <p class="mt-2">ID Mesa: <%= mesa.IDMESA %>
+                                                                </p> -->
+                                                                <div
+                                                                    class="flex flex-wrap justify-center space-x-2 mt-4">
+                                                                    <!-- <a href="/ventaIniciada/<%= mesa.IDMESA %>"
+                                                                        class="text-gray-50 bg-green-600 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-3 py-1.5 text-center">
+                                                                        Iniciar Venta
+                                                                    </a> -->
+                                                                    <a href="/editMesas/<%= mesa.IDMESA %>"
+                                                                        class="text-gray-50 bg-yellow-300 hover:bg-yellow-500 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded-full text-sm px-3 py-1.5 text-center">
+                                                                        Editar
+                                                                    </a>
+                                                                    <a href="/deleteMesas/<%= mesa.IDMESA %>"
+                                                                        class="text-gray-50 bg-red-600 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm px-3 py-1.5 text-center">
+                                                                        Eliminar
+                                                                    </a>
+                                                                </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                        <% }) %>
+                                </div>
+                            </div>
+
+                            <!-- Contenedor de Áreas -->
+                            <div class="flex flex-col w-1/6 mb-4 text-center mt-4 space-y-4">
+                                <a href="/mesas"
+                                    class="bg-pink-500 hover:bg-pink-700 text-gray-50 font-bold py-4 px-3 rounded-full">
+                                    TODOS</a>
+                                <% areas.forEach(area=> { %>
+                                    <button onclick="cargarMesas('<%= area.IDAREA %>')"
+                                        class="bg-pink-500 hover:bg-pink-700 text-gray-50 font-bold py-4 px-3 rounded-full">
+                                        <%= area.NOMBRE_AREA %>
+                                    </button>
+                                    <% }) %>
+                            </div>
+                        </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function cargarMesas(IDAREA) {
+            window.location.href = `/mesas/${IDAREA}`; // Redirige a la misma ruta con el idArea
+        }
+    </script>
+</body>
+
+</html>

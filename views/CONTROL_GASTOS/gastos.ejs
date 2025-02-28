@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <% title %>
+    </title>
+    <link href="/public/css/output.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        function filterTableByMonth() {
+            const monthSelect = document.getElementById('monthSelect');
+            const yearSelect = document.getElementById('yearSelect');
+            const month = monthSelect.value;
+            const year = yearSelect.value;
+            const table = document.getElementById('gastosTable');
+            const trs = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < trs.length; i++) {
+                const tds = trs[i].getElementsByTagName('td');
+                const date = new Date(tds[1].innerText);
+                const rowMonth = date.getMonth() + 1; // Months are zero-based
+                const rowYear = date.getFullYear();
+
+                if ((month == '' || rowMonth == month) && (year == '' || rowYear == year)) {
+                    trs[i].style.display = '';
+                } else {
+                    trs[i].style.display = 'none';
+                }
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <!-- AGREGAR FORMA DE IMPRIMIR REPORTES DE GASTOS POR MES Y AÑO -->
+
+    <div class="container mx-auto mt-10 px-4 sm:px-6 lg:px-8">
+        <div class="p-4 rounded-lg shadow backdrop-blur-lg bg-transparent">
+            <div class="overflow-x-auto">
+                <div id="alert-container"></div>
+                <% if (message) { %>
+                    <script>
+                        const alertContainer = document.getElementById('alert-container');
+                        const newAlert = document.createElement('div');
+                        newAlert.className = 'p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg flex';
+                        newAlert.setAttribute('role', 'alert');
+                        newAlert.innerHTML = `
+            <svg class="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span class="font-medium"> <%= message %> </span>
+         `;
+                        alertContainer.appendChild(newAlert);
+
+                        // Espera 3 segundos antes de desaparecer la alerta
+                        setTimeout(() => {
+                            newAlert.classList.add('hidden'); // Oculta la alerta
+                        }, 2500);
+                    </script>
+                    <% } %>
+                        <div class="flex flex-col justify-between items-center mb-4">
+                            <h1 class="text-6xl font-bold mb-4 text-gray-50 italic"
+                                style="text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9">
+                                Gastos</h1>
+                            <div
+                                class="flex flex-row justify-between items-center space-x-4 mb-4 text-center w-1/2 h-1/2">
+                                <a href="/createGastos"
+                                class="bg-pink-500 hover:bg-pink-700 text-gray-50 font-bold py-4 px-3 rounded-full transition ease-in-out delay-150  hover:-translate-y-1 hover:scale-110 duration-300">
+                                AGREGAR GASTO
+                            </a>
+                            <button id="openModalButton"
+                                    class="bg-pink-500 hover:bg-pink-700 text-gray-50 font-bold py-4 px-3 rounded-full transition ease-in-out delay-150  hover:-translate-y-1 hover:scale-110 duration-300">
+                                    IMPRIMIR REPORTES
+                            </button>
+                            </div>
+                        </div>
+
+                        <div class="mb-4 flex space-x-4 justify-center">
+                            <select id="monthSelect" onchange="filterTableByMonth()"
+                                class="px-4 py-2 border rounded-lg">
+                                <option value="">Todos los meses</option>
+                                <option value="1">Enero</option>
+                                <option value="2">Febrero</option>
+                                <option value="3">Marzo</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Mayo</option>
+                                <option value="6">Junio</option>
+                                <option value="7">Julio</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                            <select id="yearSelect" onchange="filterTableByMonth()" class="px-4 py-2 border rounded-lg">
+                                <option value="">Todos los años</option>
+                                <% for (let year=new Date().getFullYear(); year>= 2000; year--) { %>
+                                    <option value="<%= year %>">
+                                        <%= year %>
+                                    </option>
+                                    <% } %>
+                            </select>
+                        </div>
+
+                        <table id="gastosTable"
+                            class="min-w-full bg-pink-50 border border-gray-200 rounded-lg shadow-lg">
+                            <thead>
+                                <tr class="bg-pink-300 text-pink-900 text-center border">
+                                    <th scope="col" hidden class="px-16 py-3 border-b">IDGASTOS</th>
+                                    <th scope="col" class="py-3 px-4 border-b">Fecha</th>
+                                    <th scope="col" class="py-3 px-4 border-b">Monto</th>
+                                    <th scope="col" class="py-3 px-4 border-b">Descripción</th>
+                                    <th scope="col" class="py-3 px-4 border-b">Realizado por</th>
+                                    <th scope="col" hidden class="py-3 px-4 border-b">ESTADO</th>
+                                    <th scope="col" class="py-3 px-4 border-b">Acciones</th>
+                                    <th scope="col" hidden class="py-3 px-4 border-b">Accion</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-center">
+                                <% gastos.forEach((row)=> { %>
+                                    <tr>
+                                        <td hidden class="border-b px-4 py-2">
+                                            <%= row.IDGASTOS %>
+                                        </td>
+                                        <td class="border-b px-4 py-2">
+                                            <%= row.FECHA %>
+                                        </td>
+                                        <td class="border-b px-4 py-2">
+                                            $<%= row.MONTO %>
+                                        </td>
+                                        <td class="border-b px-4 py-2">
+                                            <%= row.DESCRIPCION %>
+                                        </td>
+                                        <td class="border-b px-4 py-2">
+                                            <%= row.REALIZADO_POR %>
+                                        </td>
+                                        <td hidden class="border-b px-4 py-2">
+                                            <%= row.ESTADO %>
+                                        </td>
+                                        <td hidden class="border-b px-4 py-2">
+                                            <%= row.ACCION %>
+                                        </td>
+                                        <td class="border-b px-4 py-2">
+                                            <div class="flex flex-col justify-center space-y-1 ">
+                                                <a href="/editGastos/<%= row.IDGASTOS %>"
+                                                    class="text-gray-50 bg-yellow-300 hover:bg-yellow-500 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded-full text-sm px-3 py-1.5 text-center dark:focus:ring-yellow-900">Editar</a>
+                                                <a href="/deleteGastos/<%= row.IDGASTOS %>"
+                                                    class="text-gray-50 bg-red-600 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm px-3 py-1.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Eliminar</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
+                            </tbody>
+                        </table>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal para imprimir reportes -->
+    <div id="printModal" tabindex="-1" aria-hidden="true"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur">
+        <div class="relative p-4 w-full max-w-md max-h-full">
+            <!-- Modal content -->
+            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <!-- Modal header -->
+                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                        Imprimir Reportes
+                    </h3>
+                    <button type="button"
+                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                        id="closeModalButton">
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                    </button>
+                </div>
+                <!-- Modal body -->
+                <div class="p-4 md:p-5">
+                    <p class="text-gray-700 dark:text-gray-300">Seleccione el mes y el año para imprimir el reporte</p>
+                    <div class="mt-4 flex flex-col space-y-4">
+                        <select id="modalMonthSelect" class="px-4 py-2 border rounded-lg">
+                            <option value="">Todos los meses</option>
+                            <option value="1">Enero</option>
+                            <option value="2">Febrero</option>
+                            <option value="3">Marzo</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Mayo</option>
+                            <option value="6">Junio</option>
+                            <option value="7">Julio</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+                        <select id="modalYearSelect" class="px-4 py-2 border rounded-lg">
+                            <option value="">Todos los años</option>
+                            <% for (let year=new Date().getFullYear(); year>= 2000; year--) { %>
+                                <option value="<%= year %>">
+                                    <%= year %>
+                                </option>
+                                <% } %>
+                        </select>
+                        <button id="exportButton"
+                            class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded flex flex-col items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mb-1" viewBox="0 0 512 512"
+                                fill="currentColor">
+                                <path style="fill:#E2E5E7;"
+                                    d="M128,0c-17.6,0-32,14.4-32,32v448c0,17.6,14.4,32,32,32h320c17.6,0,32-14.4,32-32V128L352,0H128z">
+                                </path>
+                                <path style="fill:#B0B7BD;" d="M384,128h96L352,0v96C352,113.6,366.4,128,384,128z">
+                                </path>
+                                <polygon style="fill:#CAD1D8;" points="480,224 384,128 480,128 "></polygon>
+                                <path style="fill:#F15642;"
+                                    d="M416,416c0,8.8-7.2,16-16,16H48c-8.8,0-16-7.2-16-16V256c0-8.8,7.2-16,16-16h352c8.8,0,16,7.2,16,16 V416z">
+                                </path>
+                                <g>
+                                    <path style="fill:#FFFFFF;"
+                                        d="M101.744,303.152c0-4.224,3.328-8.832,8.688-8.832h29.552c16.64,0,31.616,11.136,31.616,32.48 c0,20.224-14.976,31.488-31.616,31.488h-21.36v16.896c0,5.632-3.584,8.816-8.192,8.816c-4.224,0-8.688-3.184-8.688-8.816V303.152z M118.624,310.432v31.872h21.36c8.576,0,15.36-7.568,15.36-15.504c0-8.944-6.784-16.368-15.36-16.368H118.624z">
+                                    </path>
+                                    <path style="fill:#FFFFFF;"
+                                        d="M196.656,384c-4.224,0-8.832-2.304-8.832-7.92v-72.672c0-4.592,4.608-7.936,8.832-7.936h29.296 c58.464,0,57.184,88.528,1.152,88.528H196.656z M204.72,311.088V368.4h21.232c34.544,0,36.08-57.312,0-57.312H204.72z">
+                                    </path>
+                                    <path style="fill:#FFFFFF;"
+                                        d="M303.872,312.112v20.336h32.624c4.608,0,9.216,4.608,9.216,9.072c0,4.224-4.608,7.68-9.216,7.68 h-32.624v26.864c0,4.48-3.184,7.92-7.664,7.92c-5.632,0-9.072-3.44-9.072-7.92v-72.672c0-4.592,3.456-7.936,9.072-7.936h44.912 c5.632,0,8.96,3.344,8.96,7.936c0,4.096-3.328,8.704-8.96,8.704h-37.248V312.112z">
+                                    </path>
+                                </g>
+                                <path style="fill:#CAD1D8;"
+                                    d="M400,432H96v16h304c8.8,0,16-7.2,16-16v-16C416,424.8,408.8,432,400,432z"></path>
+                            </svg>
+                            <span>Imprimir</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('openModalButton').addEventListener('click', function () {
+            document.getElementById('printModal').classList.remove('hidden');
+        });
+    
+        document.getElementById('closeModalButton').addEventListener('click', function () {
+            document.getElementById('printModal').classList.add('hidden');
+        });
+    
+        document.getElementById('exportButton').addEventListener('click', function () {
+            const month = document.getElementById('modalMonthSelect').value;
+            const year = document.getElementById('modalYearSelect').value;
+            exportTableToPDF(month, year);
+        });
+    
+        function exportTableToPDF(month, year) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const table = document.getElementById('gastosTable'); // Asegúrate de que el ID de la tabla es correcto
+            const rows = table.getElementsByTagName('tr');
+            let data = [];
+            let totalGastos = 0;
+            let countGastos = 0;
+    
+            // Añadir las cabeceras
+            const headers = table.querySelectorAll('thead th');
+            let headerRow = [];
+            headers.forEach((header, index) => {
+                if (!header.hasAttribute('hidden') && header.innerText !== 'Acciones') { // Omitir la columna de acciones
+                    headerRow.push(header.innerText);
+                }
+            });
+            data.push(headerRow);
+    
+            // Añadir las filas de datos
+            for (let i = 1; i < rows.length; i++) {
+                const tds = rows[i].getElementsByTagName('td');
+                const date = new Date(tds[1]?.innerText);
+                const rowMonth = date.getMonth() + 1; // Months are zero-based
+                const rowYear = date.getFullYear();
+    
+                if ((month == '' || rowMonth == month) && (year == '' || rowYear == year)) {
+                    let row = [];
+                    for (let j = 0; j < tds.length; j++) {
+                        if (!tds[j].hasAttribute('hidden') && headers[j].innerText !== 'Acciones') { // Omitir la columna de acciones
+                            row.push(tds[j].innerText);
+                            if (j === 2) { // Columna de gastos (Monto)
+                                totalGastos += parseFloat(tds[j].innerText.replace('$', '').replace(',', ''));
+                                countGastos++;
+                            }
+                        }
+                    }
+                    data.push(row);
+                }
+            }
+    
+            const promedioGastos = totalGastos / countGastos;
+    
+            // Añadir la imagen al PDF
+            const img = new Image();
+            img.src = '/resources/ImagenesParaCRUDS/logo_sinfondo.png'; // Ruta de la imagen
+            img.onload = function () {
+                const imgWidth = 50; // Ancho de la imagen
+                const imgHeight = (img.height * imgWidth) / img.width; // Mantener la proporción de la imagen
+                const imgX = (doc.internal.pageSize.getWidth() - imgWidth) / 2; // Centrar la imagen horizontalmente
+                doc.addImage(img, 'JPEG', imgX, 10, imgWidth, imgHeight); // Añadir la imagen al PDF
+    
+                // Añadir el mes y el año al PDF
+                const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+                const selectedMonth = month ? monthNames[month - 1] : "Todos los meses";
+                const selectedYear = year || "Todos los años";
+                doc.text(`Reporte de Gastos - ${selectedMonth} ${selectedYear}`, 14, imgHeight + 20);
+    
+                // Añadir los datos al PDF
+                doc.autoTable({
+                    startY: imgHeight + 30, // Ajustar la posición de inicio de la tabla
+                    head: [data[0]],
+                    body: data.slice(1),
+                });
+    
+                // Añadir el total y el promedio de los gastos
+                doc.text(`Total de Gastos: $${totalGastos.toFixed(2)}`, 14, doc.autoTable.previous.finalY + 10);
+                doc.text(`Promedio de Gastos: $${promedioGastos.toFixed(2)}`, 14, doc.autoTable.previous.finalY + 20);
+    
+                doc.save('reporte_gastos.pdf');
+            };
+        }
+    </script>
+</body>
+
+</html>

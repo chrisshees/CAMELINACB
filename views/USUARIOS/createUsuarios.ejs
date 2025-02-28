@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <% title %>
+    </title>
+    <link href="/public/css/output.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container mx-auto mt-10 px-4 sm:px-6 lg:px-8">
+        <div class="p-4 rounded-lg shadow backdrop-blur-lg bg-transparent">
+            <div class="overflow-x-auto">
+                <div class="flex flex-col justify-between items-center mb-4">
+                    <h1 class="text-6xl font-bold mb-4 text-gray-50 italic"
+                        style="text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9">
+                        Agregar Usuario</h1>
+                </div>
+                <form action="/save_usuarios" method="POST" class="mx-auto max-w-md">
+                    <div class="mb-4 text-center">
+                        <label for="NOMBREDEUSUARIO" class=" text-gray-50 "
+                            style="text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9">Nombre
+                            de
+                            usuario</label>
+                        <input type="text" name="NOMBREDEUSUARIO" id="NOMBREDEUSUARIO"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                            placeholder="Nombre de usuario" required />
+                    </div>
+                    <div class="mb-4 text-center">
+                        <label for="PASSWORD" class=" text-gray-50 "
+                            style="text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9">Contraseña</label>
+                        <div class="relative">
+                            <input type="password" name="PASSWORD" id="PASSWORD"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 pr-10"
+                                placeholder="Contraseña" required />
+                            <button type="button" id="togglePassword"
+                                class="absolute inset-y-0 right-0 flex items-center pr-3 focus:outline-none">
+                                <svg class="h-5 w-5 text-gray-500" id="eyeIcon" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 12h.01M19.39 11.61A10 10 0 004 12a10 10 0 0015.39-.39M12 12a3 3 0 110-6 3 3 0 010 6z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-4 text-center">
+                        <label for="TIPO" class=" text-gray-50 "
+                            style="text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9">Tipo</label>
+                        <select name="TIPO" id="TIPO"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                            required>
+                            <option value="" disabled selected>Selecciona un tipo de usuario</option>
+                            <option value="1">Administrador</option>
+                            <option value="2">Empleado</option>
+                        </select>
+                    </div>
+                    <div class="mb-4 text-center">
+                        <label for="NOMBRE" class=" text-gray-50 "
+                            style="text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9">Nombre</label>
+                        <input type="text" name="NOMBRE" id="NOMBRE"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                            placeholder="Nombre" required />
+                    </div>
+                    <div class="mb-4 text-center">
+                        <label for="APELLIDOPATERNO" class=" text-gray-50 "
+                            style="text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9">Apellido
+                            Paterno</label>
+                        <input type="text" name="APELLIDOPATERNO" id="APELLIDOPATERNO"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                            placeholder="Apellido Paterno" required />
+                    </div>
+                    <div class="mb-4 text-center">
+                        <label for="APELLIDOMATERNO" class=" text-gray-50 "
+                            style="text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9">Apellido
+                            Materno</label>
+                        <input type="text" name="APELLIDOMATERNO" id="APELLIDOMATERNO"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                            placeholder="Apellido Materno" required />
+                    </div>
+                    <div class="flex justify-between">
+                        <button type="submit"
+                            class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 rounded-md">Aceptar</button>
+                        <a href="/usuarios"
+                            class="w-full ml-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-md text-center">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const passwordField = document.querySelector('#PASSWORD');
+        const eyeIcon = document.querySelector('#eyeIcon');
+
+        // Mostrar la contraseña y cambiar el color del icono a azul al hacer clic
+        togglePassword.addEventListener('mousedown', function () {
+            passwordField.setAttribute('type', 'text'); // Mostrar contraseña
+            eyeIcon.classList.remove('text-gray-500'); // Remover el color gris
+            eyeIcon.classList.add('text-blue-500'); // Agregar el color azul
+        });
+
+        // Ocultar la contraseña y restaurar el color gris cuando se suelte el clic
+        togglePassword.addEventListener('mouseup', function () {
+            passwordField.setAttribute('type', 'password'); // Ocultar contraseña
+            eyeIcon.classList.remove('text-blue-500'); // Remover el color azul
+            eyeIcon.classList.add('text-gray-500'); // Restaurar el color gris
+        });
+
+        // Asegurarse de que el color se restaure cuando el mouse salga del botón
+        togglePassword.addEventListener('mouseout', function () {
+            passwordField.setAttribute('type', 'password'); // Ocultar contraseña
+            eyeIcon.classList.remove('text-blue-500'); // Remover el color azul
+            eyeIcon.classList.add('text-gray-500'); // Restaurar el color gris
+        });
+    </script>
+</body>
+
+</html>

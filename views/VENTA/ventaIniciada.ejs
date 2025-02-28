@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <% title %>
+    </title>
+    <link href="/public/css/output.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+</head>
+
+<body>
+    <div class="container mx-auto my-10 h-full px-4 sm:px-6 lg:px-8">
+        <div class="p-4 max-h-full rounded-lg shadow backdrop-blur-lg bg-transparent">
+                <div id="alert-container"></div>
+                <% if (message) { %>
+                    <script>
+                        const alertContainer = document.getElementById('alert-container');
+                        const newAlert = document.createElement('div');
+                        newAlert.className = 'p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg flex';
+                        newAlert.setAttribute('role', 'alert');
+                        newAlert.innerHTML = `
+                            <svg class="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg> 
+                            <span class="font-medium"> <%= message %> </span>
+                        `;
+                        alertContainer.appendChild(newAlert);
+                        // Espera 3 segundos antes de desaparecer la alerta
+                        setTimeout(() => {
+                            newAlert.classList.add('hidden'); // Oculta la alerta
+                        }, 2500);
+                    </script>
+                    <% } %>
+                        <div class="flex flex-col justify-between items-center mb-4">
+                            <h1 class="text-6xl font-bold mb-4 text-gray-50 italic"
+                                style="text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9">
+                                Venta <%= mesas.length> 0 ? mesas[0].NOMBRE : 'Mesa no encontrada' %>
+                            </h1>
+                        </div>
+                        <div class="flex flex-row justify-between mb-4 gap-4 h-[90vh]">
+                            <div class="w-1/2 p-4 rounded-lg shadow bg-pink-100 overflow-y-auto ">
+                                <div class="flex flex-col justify-between items-center mb-4">
+                                    <h3 class="text-3xl font-bold mb-4 text-gray-50 italic"
+                                        style="text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9">
+                                        Pedido
+                                    </h3>
+                                </div>
+                                <form id="ventaForm" action="/finalizar_venta" method="POST" class="mx-auto max-w-md"
+                                    class="mx-auto max-w-md">
+                                    <div class="items-center p-4 rounded-lg shadow bg-pink-100">
+                                        <div class="flex flex-row justify-center items-start w-full gap-4">
+                                            <div class="flex flex-col w-1/2 mb-4 mt-4 text-center">
+                                                <label for="FECHA" class="text-gray-50 mb-4"
+                                                    style="text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9">Fecha
+                                                    y hora</label>
+                                                <input id="FECHA" name="FECHA"
+                                                    class="text-center border-gray-300 rounded-md shadow-sm focus:border-pink-500 focus:ring focus:ring-pink-500 focus:ring-opacity-50 mb-4"
+                                                    readonly>
+                                            </div>
+                                        </div>
+                                        <div class="items-center p-4 rounded-lg shadow bg-pink-100">
+                                            <div class="items-center p-4 rounded-lg shadow bg-pink-100">
+                                                <h2 class="text-2xl font-bold text-gray-700 mb-4">Detalles de la Venta
+                                                </h2>
+                                                <h3 class="text-xl font-semibold text-gray-600 mb-2">Bebidas</h3>
+                                                <table class="min-w-full border-collapse mb-4">
+                                                    <thead>
+                                                        <tr class="bg-pink-200">
+                                                            <th class="p-2 border-b">Foto</th>
+                                                            <th class="p-2 border-b">Nombre</th>
+                                                            <th class="p-2 border-b">Precio</th>
+                                                            <th class="p-2 border-b">Cantidad</th>
+                                                            <th class="p-2 border-b">Subtotal</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <% let totalBebidas=0; // Inicializar total de bebidas
+                                                            venta_bebidas.forEach(bebida=> {
+                                                            const subtotalBebida = bebida.PRECIO * bebida.CANTIDAD;
+                                                            totalBebidas += subtotalBebida; // Sumar al total de bebidas
+                                                            %>
+                                                            <tr class="hover:bg-pink-50">
+                                                                <td class="p-2 border-b" hidden>
+                                                                    <%= bebida.IDBEBIDAS %>
+                                                                </td>
+                                                                <td class="p-2 border-b">
+                                                                    <img src="/resources/Imagenes_Productos/<%= bebida.FOTO %>"
+                                                                        alt="<%= bebida.NOMBRE %>"
+                                                                        class="h-12 w-12 object-cover rounded">
+                                                                </td>
+                                                                <td class="p-2 border-b">
+                                                                    <%= bebida.NOMBRE %>
+                                                                </td>
+                                                                <td class="p-2 border-b">$<%= bebida.PRECIO.toFixed(2)
+                                                                        %>
+                                                                </td>
+                                                                <td class="p-2 border-b">
+                                                                    <%= bebida.CANTIDAD %>
+                                                                </td>
+                                                                <td class="p-2 border-b">$<%= subtotalBebida.toFixed(2)
+                                                                        %>
+                                                                </td>
+                                                            </tr>
+                                                            <% }); %>
+                                                    </tbody>
+                                                </table>
+
+                                                <h3 class="text-xl font-semibold text-gray-600 mb-2">Postres</h3>
+                                                <table class="min-w-full border-collapse">
+                                                    <thead>
+                                                        <tr class="bg-pink-200">
+                                                            <th class="p-2 border-b">Foto</th>
+                                                            <th class="p-2 border-b">Nombre</th>
+                                                            <th class="p-2 border-b">Precio</th>
+                                                            <th class="p-2 border-b">Cantidad</th>
+                                                            <th class="p-2 border-b">Subtotal</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <% let totalPostres=0; // Inicializar total de postres
+                                                            venta_POSTRES.forEach(postre=> {
+                                                            const subtotalPostre = postre.PRECIO * postre.CANTIDAD;
+                                                            totalPostres += subtotalPostre; // Sumar al total de postres
+                                                            %>
+                                                            <tr class="hover:bg-pink-50">
+                                                                <td class="p-2 border-b">
+                                                                    <img src="/resources/Imagenes_Productos/<%= postre.FOTO %>"
+                                                                        alt="<%= postre.NOMBRE %>"
+                                                                        class="h-12 w-12 object-cover rounded">
+                                                                </td>
+                                                                <td class="p-2 border-b" hidden>
+                                                                    <%= postre.IDPOSTRES %>
+                                                                </td>
+                                                                <td class="p-2 border-b">
+                                                                    <%= postre.NOMBRE %>
+                                                                </td>
+                                                                <td class="p-2 border-b">$<%= postre.PRECIO.toFixed(2)
+                                                                        %>
+                                                                </td>
+                                                                <td class="p-2 border-b">
+                                                                    <%= postre.CANTIDAD %>
+                                                                </td>
+                                                                <td class="p-2 border-b">$<%= subtotalPostre.toFixed(2)
+                                                                        %>
+                                                                </td>
+                                                            </tr>
+                                                            <% }); %>
+                                                    </tbody>
+                                                </table>
+                                                <!-- Mostrar el total general -->
+                                                <% const totalGeneral=totalBebidas + totalPostres; %>
+                                                    <div class="text-right font-bold text-xl mt-4">
+                                                        Total: $<%= totalGeneral.toFixed(2) %>
+                                                    </div>
+                                                    <input name="TOTAL" id="TOTAL"
+                                                        value="<%= totalGeneral.toFixed(2) %>" hidden>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <a href="/editVentaBebidasyPostres"
+                                            class="w-full m-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-md text-center">Editar</a>
+                                        <button type="submit"
+                                            class="w-full m-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded-md">Finalizar</button>
+                                    </div>
+                                </form>
+                                <div class="flex justify-center">
+                                    <button id="imprimirVenta"
+                                        class="w-1/2 m-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-md text-center">Imprimir</button>
+                                </div>
+                            </div>
+                            <div class="w-1/2 p-4 rounded-lg shadow bg-pink-100 overflow-y-hidden">
+                                <div class="flex flex-col justify-between items-center mb-4">
+                                    <h3 class="text-3xl font-bold mb-4 text-gray-50 italic"
+                                        style="text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9">
+                                        Agregar Productos
+                                    </h3>
+                                </div>
+                                <div class="items-center p-4 rounded-lg shadow overflow-x-auto h-full overflow-y-auto">
+                                    <table class="min-w-full overflow-auto border-collapse" id="productosTable">
+                                        <thead>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Iteración de bebidas -->
+                                            <div class="flex px-4 py-3 rounded-md border-2 border-transparent overflow-hidden max-w-md mx-auto">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192.904 192.904" width="16px" class="fill-gray-600 mr-3 rotate-90">
+                                                    <path d="m190.707 180.101-47.078-47.077c11.702-14.072 18.752-32.142 18.752-51.831C162.381 36.423 125.959 0 81.191 0 36.422 0 0 36.423 0 81.193c0 44.767 36.422 81.187 81.191 81.187 19.688 0 37.759-7.049 51.831-18.751l47.079 47.078a7.474 7.474 0 0 0 5.303 2.197 7.498 7.498 0 0 0 5.303-12.803zM15 81.193C15 44.694 44.693 15 81.191 15c36.497 0 66.189 29.694 66.189 66.193 0 36.496-29.692 66.187-66.189 66.187C44.693 147.38 15 117.689 15 81.193z"></path>
+                                                </svg>
+                                                <input id="searchInput" type="email" placeholder="Buscar..." class="w-full outline-none bg-transparent text-gray-600 text-sm " />
+                                            </div>
+                                            <% bebidas.forEach(bebida=> { %>
+                                                <tr class="hover:bg-pink-50">
+                                                    <td class="p-2 border-b">
+                                                        <img src="/resources/Imagenes_Productos/<%= bebida.FOTO %>" alt="<%= bebida.NOMBRE %>" class="h-16 w-16 object-cover rounded">
+                                                    </td>
+                                                    <td class="p-2 border-b">
+                                                        <%= bebida.NOMBRE %>
+                                                    </td>
+                                                    <td class="p-2 border-b">$<%= bebida.PRECIO.toFixed(2) %>
+                                                    </td>
+                                                    <td class="p-2 border-b">
+                                                        <button class="inline-flex items-center justify-center w-full text-gray-50 bg-green-500 hover:bg-green-400 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-3 py-1.5 text-center animate-pulse overflow-hidden"
+                                                            onclick="abrirModalBebidas('<%= bebida.IDBEBIDAS %>', '<%= bebida.NOMBRE %>')">
+                                                            Agregar
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            <% }); %>
+                                            <!-- Iteración de postres -->
+                                            <% postres.forEach(postre=> { %>
+                                                <tr class="hover:bg-pink-50">
+                                                    <td class="p-2 border-b">
+                                                        <img src="/resources/Imagenes_Productos/<%= postre.FOTO %>" alt="<%= postre.NOMBRE %>" class="h-16 w-16 object-cover rounded">
+                                                    </td>
+                                                    <td class="p-2 border-b">
+                                                        <%= postre.NOMBRE %>
+                                                    </td>
+                                                    <td class="p-2 border-b">$<%= postre.PRECIO.toFixed(2) %>
+                                                    </td>
+                                                    <td class="p-2 border-b">
+                                                        <button class="inline-flex items-center justify-center w-full text-gray-50 bg-green-500 hover:bg-green-400 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-3 py-1.5 text-center animate-pulse overflow-hidden"
+                                                            onclick="abrirModalPostres('<%= postre.IDPOSTRES %>', '<%= postre.NOMBRE %>')">
+                                                            Agregar
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            <% }); %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+            
+        </div>
+        <!-- Modal para bebidas -->
+        <div id="modalBebidas" class="fixed inset-0 flex items-center justify-center hidden">
+            <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm mx-auto">
+                <form action="/save_ventabebidas" method="POST" class="mx-auto max-w-md">
+                    <h2 class="text-lg font-bold mb-4">Seleccionar Cantidad</h2>
+                    <!-- Inputs ocultos para enviar ID de bebida y nombre -->
+                    <input type="hidden" name="IDBEBIDAS" id="IDBEBIDAS">
+                    <input type="hidden" name="NOMBRE" id="NOMBRE">
+                    <!-- Input para la cantidad -->
+                    <input type="number" name="CANTIDAD" id="CANTIDAD"
+                        class="border border-gray-300 rounded-md p-2 mb-4" min="1" value="1">
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Agregar</button>
+                        <button type="button" onclick="cerrarModalBebidas()"
+                            class="bg-red-500 text-white px-4 py-2 rounded ml-2">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Modal para postres -->
+        <div id="modalPostres" class="fixed inset-0 flex items-center justify-center hidden">
+            <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm mx-auto">
+                <form action="/save_ventapostres" method="POST" class="mx-auto max-w-md">
+                    <h2 class="text-lg font-bold mb-4">Seleccionar Cantidad</h2>
+                    <!-- Inputs ocultos para enviar ID de postre y nombre -->
+                    <input type="hidden" name="IDPOSTRES" id="IDPOSTRES">
+                    <input type="hidden" name="NOMBREPOSTRE" id="NOMBREPOSTRE">
+                    <!-- Input para la cantidad -->
+                    <input type="number" name="CANTIDAD" id="CANTIDAD"
+                        class="border border-gray-300 rounded-md p-2 mb-4" min="1" value="1">
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Agregar</button>
+                        <button type="button" onclick="cerrarModalPostres()"
+                            class="bg-red-500 text-white px-4 py-2 rounded ml-2">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            // Obtén la fecha actual del sistema
+            const fechaActual = new Date().toLocaleString('en-CA', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            }).replace(",", ""); // Formato YYYY-MM-DD HH:MM:SS
+            document.getElementById('FECHA').value = fechaActual;
+        </script>
+
+        <script>
+            // Función para abrir el modal de bebidas
+            function abrirModalBebidas(id, nombre) {
+                document.getElementById("modalBebidas").classList.remove("hidden");
+                document.getElementById("IDBEBIDAS").value = id;
+                document.getElementById("NOMBRE").value = nombre;
+            }
+
+            // Función para abrir el modal de postres
+            function abrirModalPostres(id, nombre) {
+                document.getElementById("modalPostres").classList.remove("hidden");
+                document.getElementById("IDPOSTRES").value = id;
+                document.getElementById("NOMBREPOSTRE").value = nombre;
+            }
+
+            // Funciones para cerrar los modales
+            function cerrarModalBebidas() {
+                document.getElementById("modalBebidas").classList.add("hidden");
+            }
+
+            function cerrarModalPostres() {
+                document.getElementById("modalPostres").classList.add("hidden");
+            }
+        </script>
+
+        <script>
+            document.getElementById('searchInput').addEventListener('input', function () {
+                const searchTerm = this.value.toLowerCase();
+                const productos = document.querySelectorAll('#productosTable tbody tr');
+
+                productos.forEach(producto => {
+                    const nombre = producto.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                    if (nombre.includes(searchTerm)) {
+                        producto.style.display = '';
+                    } else {
+                        producto.style.display = 'none';
+                    }
+                });
+            });
+        </script>
+
+        <script>
+            document.getElementById('imprimirVenta').addEventListener('click', function () {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Añadir la imagen al PDF
+                const img = new Image();
+                img.src = '/resources/ImagenesParaCRUDS/logo_sinfondo.png'; // Ruta de la imagen
+                img.onload = function () {
+                    const imgWidth = 50; // Ancho de la imagen
+                    const imgHeight = (img.height * imgWidth) / img.width; // Mantener la proporción de la imagen
+                    const imgX = (doc.internal.pageSize.getWidth() - imgWidth) / 2; // Centrar la imagen horizontalmente
+                    doc.addImage(img, 'JPEG', imgX, 10, imgWidth, imgHeight); // Añadir la imagen al PDF
+
+                    // Agregar título
+                    doc.text("Detalles de la Venta", 14, imgHeight + 20);
+
+                    // Fusionar datos de bebidas y postres en una sola lista
+                    const items = [
+                <% venta_bebidas.forEach(bebida => { %>
+                        ['<%= bebida.NOMBRE %>', '$<%= bebida.PRECIO.toFixed(2) %>', '<%= bebida.CANTIDAD %>', '$<%= (bebida.PRECIO * bebida.CANTIDAD).toFixed(2) %>'],
+                <% }); %>
+                <% venta_POSTRES.forEach(postre => { %>
+                            ['<%= postre.NOMBRE %>', '$<%= postre.PRECIO.toFixed(2) %>', '<%= postre.CANTIDAD %>', '$<%= (postre.PRECIO * postre.CANTIDAD).toFixed(2) %>'],
+                <% }); %>
+            ];
+
+                    // Agregar tabla combinada
+                    doc.autoTable({
+                        startY: imgHeight + 30, // Ajustar la posición de inicio de la tabla
+                        head: [['Nombre', 'Precio', 'Cantidad', 'Subtotal']],
+                        body: items
+                    });
+
+                    // Agregar total general
+                    doc.text("Total: $<%= totalGeneral.toFixed(2) %>", 14, doc.lastAutoTable.finalY + 10);
+                    doc.setFontSize(10);
+                    doc.text("Gracias por venir a CAMELINA COFFEE&BAR, vuelve pronto! :)", 14, doc.lastAutoTable.finalY + 20);
+                    // Guardar el PDF
+                    doc.save('venta.pdf');
+                };
+            });
+        </script>
+</body>
+
+</html>

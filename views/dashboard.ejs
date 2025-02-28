@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrador</title>
+    <link href="/public/css/output.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+    <!-- FALTA BOTON PARA IMPRIMIR REPORTES / EXPORTARLOS A PDF O EXCEL-->
+    <!-- FALTA PONER LOS REPORTES EN FORMAS DE GRAFICAS -->
+
+    <% if (login) { %>
+        <div class="container mx-auto mt-10 px-4 sm:px-6 lg:px-8 overflow-auto">
+            <div class="p-4 rounded-lg shadow backdrop-blur-lg bg-transparent">
+                <div>
+                    <div id="alert-container"></div>
+                    <% if (message) { %>
+                        <script>
+                            const alertContainer = document.getElementById('alert-container');
+                            const newAlert = document.createElement('div');
+                            newAlert.className = 'p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg flex';
+                            newAlert.setAttribute('role', 'alert');
+                            newAlert.innerHTML = `
+                                <svg class="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                                <span class="font-medium"> <%= message %> </span>
+                            `;
+                            alertContainer.appendChild(newAlert);
+
+                            // Espera 3 segundos antes de desaparecer la alerta
+                            setTimeout(() => {
+                                newAlert.classList.add('hidden'); // Oculta la alerta
+                            }, 2500);
+                        </script>
+                    <% } %>
+                    <div class="flex flex-col justify-between items-center mb-4">
+                        <h1 class="text-6xl font-bold mb-4 text-gray-50 italic"
+                            style="text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9">
+                            Dashboard</h1>
+                    </div>
+                    <% if (!cajaAbierta) { %>
+                        <div class="alert alert-warning flex flex-col items-center justify-center text-center">
+                            <p class="text-gray-50 bg-transparent mb-4 text-l">La caja no está abierta para hoy. ¿Desea abrir la caja?</p>
+                            <button id="openModalButton" class="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded">
+                                Abrir Caja
+                            </button>
+                        </div>
+                    <% } else if (cajaCerrada) { %>
+                        <div class="alert alert-warning flex flex-col items-center justify-center text-center">
+                            <p class="text-gray-50 bg-transparent mb-4 text-2xl">La caja está cerrada. ¿Desea reabrir la caja?</p>
+                            <form method="POST" action="/reabrirCaja" class="w-full flex flex-col items-center">
+                                <input type="hidden" name="IDCONTROLCAJA" value="<%= controlCaja.IDCONTROLCAJA %>">
+                                <button class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
+                                    Reabrir Caja
+                                </button>
+                            </form>
+                        </div>
+                    <% } %>
+                </div>
+                <!-- AQUI VAN LAS GRAFICAS Y REPORTES -->
+
+                <div class="container mx-auto p-4">
+                    <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
+                        <canvas id="topProductsChart"></canvas>
+                    </div>
+                    <div class="bg-white shadow-lg rounded-lg p-6">
+                        <canvas id="salesExpensesChart"></canvas>
+                    </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            // Construye los datos para Chart.js
+                            const bebidas = <%- JSON.stringify(bebidasVendidas) %>;
+                            const postres = <%- JSON.stringify(postresVendidos) %>;
+
+                            if (!bebidas.length && !postres.length) {
+                                console.error('No hay datos para mostrar en la gráfica de productos más vendidos.');
+                                return;
+                            }
+
+                            const labels = [
+                                ...bebidas.map(item => item.NOMBRE),
+                                ...postres.map(item => item.NOMBRE)
+                            ];
+                            const values = [
+                                ...bebidas.map(item => item.CANTIDAD_TOTAL),
+                                ...postres.map(item => item.CANTIDAD_TOTAL)
+                            ];
+
+                            new Chart(document.getElementById('topProductsChart'), {
+                                type: 'bar',
+                                data: {
+                                    labels: labels,
+                                    datasets: [{
+                                        label: 'Productos más vendidos del mes',
+                                        data: values,
+                                        backgroundColor: [
+                                            'rgba(75, 192, 192, 1)', // Color sólido
+                                            'rgba(255, 159, 64, 1)', // Color sólido
+                                            'rgba(153, 102, 255, 1)', // Color sólido
+                                            'rgba(255, 205, 86, 1)', // Color sólido
+                                            'rgba(54, 162, 235, 1)', // Color sólido
+                                            'rgba(201, 203, 207, 1)' // Color sólido
+                                        ],
+                                        borderColor: [
+                                            'rgba(75, 192, 192, 1)',
+                                            'rgba(255, 159, 64, 1)',
+                                            'rgba(153, 102, 255, 1)',
+                                            'rgba(255, 205, 86, 1)',
+                                            'rgba(54, 162, 235, 1)',
+                                            'rgba(201, 203, 207, 1)'
+                                        ],
+                                        borderWidth: 1
+                                    }]
+                                },
+                                options: {
+                                    scales: {
+                                        x: {
+                                            ticks: {
+                                                color: 'rgba(0, 0, 0, 1)' // Color de letra de los labels del eje X
+                                            }
+                                        },
+                                        y: {
+                                            ticks: {
+                                                color: 'rgba(0, 0, 0, 1)' // Color de letra de los labels del eje Y
+                                            }
+                                        }
+                                    },
+                                    plugins: {
+                                        legend: {
+                                            labels: {
+                                                color: 'rgba(0, 0, 0, 1)' // Color de letra de los labels de la leyenda
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+
+                            const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+                            // Procesar los datos de ventas y gastos
+                            const ventasPorMes = Array(12).fill(0); // Inicializar con 0 para todos los meses
+                            const gastosPorMes = Array(12).fill(0);
+
+                            <% ventasMensuales.forEach(v => { %>
+                                ventasPorMes[<%= v.MES - 1 %>] = <%= v.TOTAL_VENTAS %>;
+                            <% }); %>
+
+                            <% gastosMensuales.forEach(g => { %>
+                                gastosPorMes[<%= g.MES - 1 %>] = <%= g.TOTAL_GASTOS %>;
+                            <% }); %>
+
+                            // Generar la gráfica
+                            new Chart(document.getElementById('salesExpensesChart'), {
+                                type: 'bar',
+                                data: {
+                                    labels: meses,
+                                    datasets: [
+                                        {
+                                            label: 'Ventas',
+                                            data: ventasPorMes,
+                                            backgroundColor: 'rgba(54, 162, 235, 1)', // Color sólido
+                                            borderColor: 'rgba(54, 162, 235, 1)',
+                                            borderWidth: 1
+                                        },
+                                        {
+                                            label: 'Gastos',
+                                            data: gastosPorMes,
+                                            backgroundColor: 'rgba(255, 99, 132, 1)', // Color sólido
+                                            borderColor: 'rgba(255, 99, 132, 1)',
+                                            borderWidth: 1
+                                        }
+                                    ]
+                                },
+                                options: {
+                                    responsive: true,
+                                    plugins: {
+                                        legend: {
+                                            display: true,
+                                            position: 'top',
+                                            labels: {
+                                                color: 'rgba(0, 0, 0, 1)' // Color de letra de los labels de la leyenda
+                                            }
+                                        }
+                                    },
+                                    scales: {
+                                        x: {
+                                            ticks: {
+                                                color: 'rgba(0, 0, 0, 1)' // Color de letra de los labels del eje X
+                                            }
+                                        },
+                                        y: {
+                                            ticks: {
+                                                color: 'rgba(0, 0, 0, 1)', // Color de letra de los labels del eje Y
+                                                beginAtZero: true
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+            <!-- Modal para abrir la caja -->
+            <div id="authentication-modal" tabindex="-1" aria-hidden="true"
+                class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur">
+                <div class="relative p-4 w-full max-w-md max-h-full">
+                    <!-- Modal content -->
+                    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                        <!-- Modal header -->
+                        <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                                Abrir Caja
+                            </h3>
+                            <button type="button"
+                                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                id="closeModalButton">
+                                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 14 14">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                        stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+                        <!-- Modal body -->
+                        <div class="p-4 md:p-5">
+                            <form class="space-y-4" action="/abrirCaja" method="POST">
+                                <div>
+                                    <label for="INICIODIA"
+                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Monto inicial</label>
+                                    <input type="number" name="INICIODIA" id="INICIODIA"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-pink-500 focus:border-pink-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                                        placeholder="Monto inicial" required />
+                                </div>
+                                <button type="submit"
+                                    class="w-full text-white bg-pink-700 hover:bg-pink-800 focus:ring-4 focus:outline-none focus:ring-pink-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-pink-600 dark:hover:bg-pink-700 dark:focus:ring-pink-800">Abrir
+                                    Caja</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                document.getElementById('openModalButton').addEventListener('click', function () {
+                    document.getElementById('authentication-modal').classList.remove('hidden');
+                });
+
+                document.getElementById('closeModalButton').addEventListener('click', function () {
+                    document.getElementById('authentication-modal').classList.add('hidden');
+                });
+            </script>
+    <% } else { %>
+        <script>
+            window.location.href = '/login';
+        </script>
+    <% } %>
+</body>
+
+</html>

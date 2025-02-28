@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <% title %>
+    </title>
+    <link href="/public/css/output.css" rel="stylesheet">
+</head>
+<body>
+<!-- 
+CANTIDAD ACTUAL EN LA CAJA
+HISTORIAL DE MOVIMIENTOS
+BOTON PARA CERRAR TURNO
+
+TURNO SE CIERRA A LAS 12 AUTOMATICAMENTE SI NO SE CIERRA MANUAL
+-->
+    <div class="min-h-screen flex items-center justify-center items-stretch">
+        <div class="p-4 rounded-lg shadow backdrop-blur-lg bg-transparent">
+            <div class="overflow-x-auto">
+                <div id="alert-container"></div>
+                <% if (message) { %>
+                    <script>
+                        const alertContainer = document.getElementById('alert-container');
+                        const newAlert = document.createElement('div');
+                        newAlert.className = 'p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg flex';
+                        newAlert.setAttribute('role', 'alert');
+                        newAlert.innerHTML = `
+            <svg class="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span class="font-medium"> <%= message %> </span>
+         `;
+                        alertContainer.appendChild(newAlert);
+
+                        // Espera 3 segundos antes de desaparecer la alerta
+                        setTimeout(() => {
+                            newAlert.classList.add('hidden'); // Oculta la alerta
+                        }, 2500);
+                    </script>
+                <% } %>
+
+                <div class="flex flex-col justify-between items-center mb-4">
+                    <h1 class="text-6xl font-bold mb-4 text-gray-50 italic"
+                        style="text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9">
+                        CAJA</h1>
+                        <div class="flex flex-col justify-center items-center space-x-4 mb-4 w-full">
+                            <% if (cajaAbierta && controlCaja.ESTADO === 1) { %>
+                                <form method="POST" action="/cerrarCaja" class="flex justify-center">
+                                    <input type="hidden" name="IDCONTROLCAJA" value="<%= controlCaja.IDCONTROLCAJA %>">
+                                    <button
+                                        class="mb-4 bg-pink-500 hover:bg-pink-700 text-gray-50 font-bold py-4 px-3 rounded-full transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 duration-300">
+                                        CERRAR CAJA
+                                    </button>
+                                </form>
+                            <% } else if (!cajaAbierta) { %>
+                                <h2 class="text-3xl font-bold mb-4 text-gray-50 italic"
+                                style="text-shadow: 0 0 5px #e90a0a, 0 0 10px #e90a0a, 0 0 20px #e90a0a, 0 0 40px #e90a0a">Es necesario abrir la caja primero</h2>
+                            <% } %>
+                            <a href="/historialCaja"
+                                class="bg-pink-500 hover:bg-pink-700 text-gray-50 font-bold py-4 px-3 rounded-full transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 duration-300">
+                                VER HISTORIAL DE CAJA
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <% if (cajaAbierta && controlCaja.ESTADO === 1) { %>
+                        <h2 class="text-3xl font-bold mb-4 text-gray-50 italic"
+                            style="text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9">
+                            INICIO DEL DIA $<%= controlCaja.INICIODIA %> MXN
+                        </h2>
+                        <h2 class="text-3xl font-bold mb-4 text-gray-50 italic"
+                            style="text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9">
+                            CANTIDAD ACTUAL EN LA CAJA $<%= controlCaja.MONTOACTUAL %> MXN
+                        </h2>
+                    <% } else if (cajaAbierta && controlCaja.ESTADO !== 1) { %>
+                        <h2 class="text-3xl font-bold mb-4 text-gray-50 italic text-center"
+                            style="text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9">
+                            CAJA CERRADA
+                        </h2>
+                        <h2 class="text-3xl font-bold mb-4 text-gray-50 italic text-center"
+                            style="text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9">
+                            CANTIDAD FINAL EN CAJA $<%= controlCaja.FINDIA %> MXN
+                        </h2>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

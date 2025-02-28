@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <% title %>
+    </title>
+    <link href="/public/css/output.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container mx-auto mt-10 px-4 sm:px-6 lg:px-8">
+        <div class="p-4 rounded-lg shadow backdrop-blur-lg bg-transparent">
+            <div class="overflow-x-auto">
+                <div class="flex flex-col justify-between items-center mb-4">
+                    <h1 class="text-6xl font-bold mb-4 text-gray-50 italic"
+                        style="text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9">
+                        Productos</h1>
+                </div>
+                <table class="min-w-full bg-pink-50 border border-gray-200 rounded-lg shadow-lg">
+                    <thead>
+                        <tr class="bg-pink-300 text-pink-900 text-center border">
+                            <th scope="col" class="py-3 px-4 border-b">Foto</th>
+                            <th scope="col" hidden class="px-16 py-3 border-b">IDVENTA</th>
+                            <th scope="col" class="py-3 px-4 border-b">Producto</th>
+                            <th scope="col" class="py-3 px-4 border-b">Cantidad</th>
+                            <th scope="col" class="py-3 px-4 border-b">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        <% venta_POSTRES.forEach((postre)=> { %>
+                            <tr>
+                                <td class="p-2 border-b">
+                                    <img src="/resources/Imagenes_Productos/<%= postre.FOTO %>"
+                                        alt="<%= postre.NOMBRE %>"
+                                        class="w-16 md:w-32 max-w-full max-h-full">
+                                </td>
+                                <td hidden class="border-b px-4 py-2">
+                                    <%= postre.IDPOSTRES %>
+                                </td>
+                                <td class="border-b px-4 py-2">
+                                    <%= postre.NOMBRE %>
+                                </td>
+                                <td class="border-b px-4 py-2">
+                                    <%= postre.CANTIDAD %>
+                                </td>
+                                <td class="border-b px-4 py-2">
+                                    <div class="flex flex-col justify-center space-y-1 ">
+                                        <button
+                                            class="text-gray-50 bg-yellow-300 hover:bg-yellow-500 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded-full text-sm px-3 py-1.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+                                            onclick="abrirModalPostres('<%= postre.IDPOSTRES %>', '<%= postre.NOMBRE %>')">Editar</button>
+                                        <a href="/deletePostresfromVenta/<%= postre.IDPOSTRES %>"
+                                            class="text-gray-50 bg-red-600 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm px-3 py-1.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Eliminar</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <% }); %>
+                                <% venta_bebidas.forEach((bebida)=> { %>
+                                    <tr>
+                                        <td class="p-2 border-b">
+                                            <img src="/resources/Imagenes_Productos/<%= bebida.FOTO %>"
+                                                alt="<%= bebida.NOMBRE %>"
+                                                class="w-16 md:w-32 max-w-full max-h-full">
+                                        </td>
+                                        <td hidden class="border-b px-4 py-2">
+                                            <%= bebida.IDBEBIDAS %>
+                                        </td>
+                                        <td hidden class="border-b px-4 py-2">
+                                            <%= bebida.IDBEBIDAS %>
+                                        </td>
+                                        <td class="border-b px-4 py-2">
+                                            <%= bebida.NOMBRE %>
+                                        </td>
+                                        <td class="border-b px-4 py-2">
+                                            <%= bebida.CANTIDAD %>
+                                        </td>
+                                        <td class="border-b px-4 py-2">
+                                            <div class="flex flex-col justify-center space-y-1 ">
+                                                <button
+                                                    class="text-gray-50 bg-yellow-300 hover:bg-yellow-500 focus:outline-none focus:ring-4 focus:ring-yellow-300 font-medium rounded-full text-sm px-3 py-1.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+                                                    onclick="abrirModalBebidas('<%= bebida.IDBEBIDAS %>', '<%= bebida.NOMBRE %>')">Editar</button>
+                                                <a href="/deleteBebidasfromVenta/<%= bebida.IDBEBIDAS %>"
+                                                    class="text-gray-50 bg-red-600 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm px-3 py-1.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Eliminar</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
+                    </tbody>
+                </table>
+
+
+
+
+
+
+
+                <!-- Modal para bebidas -->
+                <div id="modalBebidas" class="fixed inset-0 flex items-center justify-center hidden">
+                    <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm mx-auto">
+                        <form action="/update_ventabebidas" method="POST" class="mx-auto max-w-md">
+                            <h2 class="text-lg font-bold mb-4">Seleccionar Nueva Cantidad</h2>
+                            <!-- Inputs ocultos para enviar ID de bebida y nombre -->
+                            <input name="IDBEBIDAS" id="IDBEBIDAS" hidden>
+                            <input name="NOMBRE" id="NOMBRE" hidden>
+                            <!-- Input para la cantidad -->
+                            <input type="number" name="CANTIDAD" id="CANTIDAD"
+                                class="border border-gray-300 rounded-md p-2 mb-4" min="1" value="1">
+                            <div class="flex justify-end">
+                                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Aceptar</button>
+                                <button type="button" onclick="cerrarModalBebidas()"
+                                    class="bg-red-500 text-white px-4 py-2 rounded ml-2">Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!-- Modal para postres -->
+                <div id="modalPostres" class="fixed inset-0 flex items-center justify-center hidden">
+                    <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm mx-auto">
+                        <form action="/update_ventapostres" method="POST" class="mx-auto max-w-md">
+                            <h2 class="text-lg font-bold mb-4">Seleccionar Nueva Cantidad</h2>
+                            <!-- Inputs ocultos para enviar ID de postre y nombre -->
+                            <input name="IDPOSTRES" id="IDPOSTRES" hidden>
+                            <input name="NOMBREPOSTRE" id="NOMBREPOSTRE" hidden>
+                            <!-- Input para la cantidad -->
+                            <input type="number" name="CANTIDAD" id="CANTIDAD"
+                                class="border border-gray-300 rounded-md p-2 mb-4" min="1" value="1">
+                            <div class="flex justify-end">
+                                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Aceptar</button>
+                                <button type="button" onclick="cerrarModalPostres()"
+                                    class="bg-red-500 text-white px-4 py-2 rounded ml-2">Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!-- <div class="flex justify-between items-center mt-4 mb-4">
+                    <a href="/mesas"
+                        class="bg-pink-500 hover:bg-pink-700 text-gray-50 font-bold py-4 px-3 rounded-full transition ease-in-out delay-150  hover:-translate-y-1 hover:scale-110 duration-300">
+                        VOLVER
+                    </a> -->
+
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Función para abrir el modal de bebidas
+        function abrirModalBebidas(id, nombre) {
+            document.getElementById("modalBebidas").classList.remove("hidden");
+            document.getElementById("IDBEBIDAS").value = id;
+            document.getElementById("NOMBRE").value = nombre;
+        }
+
+        // Función para abrir el modal de postres
+        function abrirModalPostres(id, nombre) {
+            document.getElementById("modalPostres").classList.remove("hidden");
+            document.getElementById("IDPOSTRES").value = id;
+            document.getElementById("NOMBREPOSTRE").value = nombre;
+        }
+
+        // Funciones para cerrar los modales
+        function cerrarModalBebidas() {
+            document.getElementById("modalBebidas").classList.add("hidden");
+        }
+
+        function cerrarModalPostres() {
+            document.getElementById("modalPostres").classList.add("hidden");
+        }
+    </script>
+</body>
+
+</html>

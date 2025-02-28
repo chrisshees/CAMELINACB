@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <link href="/public/css/output.css" rel="stylesheet">
+</head>
+<style>
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        padding: 2rem;
+        background-color: #fff5fd;
+    }
+
+    main {
+        display: grid;
+        gap: 1.5rem;
+        font: 0.75rem/1.6 helvetica, sans-serif;
+    }
+
+    nav {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap; /* Ensure buttons wrap to the next line if needed */
+            margin-bottom: 20px;
+        }
+
+        .button-33 {
+            background-color: #e0b3ff;
+            border-radius: 100px;
+            box-shadow: rgba(92, 44, 187, 0.2) 0 -25px 18px -14px inset, rgba(106, 44, 187, 0.15) 0 1px 2px, rgba(73, 44, 187, 0.15) 0 2px 4px, rgba(44, 187, 99, .15) 0 4px 8px, rgba(44, 187, 99, .15) 0 8px 16px, rgba(44, 187, 99, .15) 0 16px 32px;
+            color: rgb(235, 235, 235);
+            cursor: pointer;
+            display: inline-block;
+            font-family: CerebriSans-Regular, -apple-system, system-ui, Roboto, sans-serif;
+            padding: 7px 20px;
+            text-align: center;
+            text-decoration: none;
+            transition: all 250ms;
+            border: 0;
+            font-size: 16px;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            margin: 5px; /* Add margin to space out the buttons */
+            text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9;
+        }
+
+        .button-33:hover {
+            box-shadow: rgba(142, 44, 187, 0.35) 0 -25px 18px -14px inset, rgba(53, 30, 125, 0.25) 0 1px 2px, rgba(44, 187, 99, .25) 0 2px 4px, rgba(44, 187, 99, .25) 0 4px 8px, rgba(44, 187, 99, .25) 0 8px 16px, rgba(44, 187, 99, .25) 0 16px 32px;
+            transform: scale(1.05) rotate(-1deg);
+        }
+
+    .active {
+        font-weight: 900;
+        color: rgb(235, 235, 235);
+    }
+    .menu {
+            list-style-type: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .menu li {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .menu li img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 0.25rem;
+            margin-bottom: 10px;
+        }
+
+        .menu li h2 {
+            color: rgba(0, 0, 0, 0.7);
+            font-size: 1.2rem;
+            margin: 0.5rem 0;
+        }
+
+        .menu li p {
+            color: rgba(0, 0, 0, 0.5);
+            margin: 0.25rem 0;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        .right-align {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .center-align {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 5rem;
+            font-weight: 200;
+            color: rgb(235, 235, 235);
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 200;
+            color: rgb(235, 235, 235);
+        }
+  
+
+</style>
+
+<body>
+    <div class="right-align">
+        <a class="button-33 active" style=" font: 0.75rem/1.6 helvetica, sans-serif;" href="login">Iniciar Sesion</a>
+    </div>
+    <!-- <hr> -->
+    <main>
+        <div class="center-align">
+            <img src="/resources/ImagenesParaCRUDS/logo_sinfondo.png" alt="logo" style="width: 100%; max-width: 300px; margin: 0 auto;">
+        </div>
+        <div class="center-align">
+            <h1 style="text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9">MENU</h1>
+            <h2 style="text-shadow: 0 0 5px #d30ae9, 0 0 10px #d30ae9, 0 0 20px #d30ae9, 0 0 40px #d30ae9">Camelina C&B</h2>
+        </div>
+        <nav>
+            <button class="button-33 active" data-tag="all">TODOS</button>
+            <% categorias.forEach(categoria=> { %>
+                <button class="button-33" data-tag="<%= categoria.IDCATEGORIA %>">
+                    <%= categoria.NOMBRE %>
+                </button>
+                <% }); %>
+                    <button class="button-33" data-tag="postres">POSTRES</button>
+        </nav>
+        <ul class='menu'>
+            <% bebidas.forEach(bebida=> { %>
+                <li class='item' data-type='<%= bebida.IDCATEGORIA %>'>
+                    <img src='/resources/Imagenes_Productos/<%= bebida.FOTO %>' alt='<%= bebida.NOMBRE %>'>
+                    <h2>
+                        <%= bebida.NOMBRE %>
+                    </h2>
+                    <p>
+                        <%= bebida.DESCRIPCION %>
+                    </p>
+                    <p>$<%= bebida.PRECIO %> MXN</p>
+                </li>
+                <% }); %>
+                    <% postres.forEach(postre=> { %>
+                        <li class='item' data-type='postres'>
+                            <img src='/resources/Imagenes_Productos/<%= postre.FOTO %>' alt='<%= postre.NOMBRE %>'>
+                            <h2>
+                                <%= postre.NOMBRE %>
+                            </h2>
+                            <p>
+                                <%= postre.DESCRIPCION %>
+                            </p>
+                            <p>$<%= postre.PRECIO %> MXN</p>
+                        </li>
+                        <% }); %>
+        </ul>
+    </main>
+
+    <script>
+        const items = document.querySelectorAll('.item');
+
+        function insertViewTransitionName() {
+            items.forEach((item, i) => {
+                item.style.viewTransitionName = `item-${i++}`;
+            });
+        }
+
+        function updateBtn(btn) {
+            document.querySelector('.active').classList.remove('active');
+            btn.classList.add('active');
+        }
+
+        const resetMenu = () => items.forEach((item) => item.classList.remove('hide'));
+
+        function updateMenu(tag) {
+            resetMenu();
+            items.forEach((item) => {
+                if (item.dataset.type !== tag && tag !== 'all') {
+                    item.classList.add('hide');
+                }
+            })
+        }
+
+        function activate(e) {
+            updateMenu(e.target.dataset.tag);
+            updateBtn(e.target)
+        }
+
+        function init(e) {
+            if (!e.target.matches('button')) return;
+            insertViewTransitionName();
+            !document.startViewTransition
+                ? activate(e)
+                : document.startViewTransition(() => activate(e));
+        }
+
+        window.addEventListener('click', init, false);
+    </script>
+</body>
+
+</html>
